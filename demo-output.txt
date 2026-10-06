@@ -1,0 +1,159 @@
+== step1_city
+the city: 40 x 40 blocks, one block takes 15 s; corner to corner: 20 min
+rider A at (4, 5), driver 1 at (4, 7): 0 across + 2 up = 2 blocks = 30 s
+6 riders and 6 drivers in a 10 x 10 neighbourhood; blocks from each driver:
+         driver 1  driver 2  driver 3  driver 4  driver 5  driver 6  
+rider A       2         6         5         4         7         9    
+rider B       5         3         6         3         4        10    
+rider C       9         3         6         9         8         6    
+rider D       6         2         3         6         5         7    
+rider E       3        11         6         9        12         6    
+rider F       3         9         6         7        10        10    
+nearest driver for each rider: A->1 (2)  B->2 (3)  C->2 (3)  D->2 (2)  E->1 (3)  F->1 (3)
+if everyone could have their nearest: 16 blocks = 240 s in total. But drivers [1, 2] are each wanted by more than one rider.
+== step2_nearest_driver
+rider A gets driver 1:  2 blocks =  30 s
+rider B gets driver 2:  3 blocks =  45 s
+rider C gets driver 3:  6 blocks =  90 s   (driver 2 was nearer, but taken)
+rider D gets driver 5:  5 blocks =  75 s   (driver 2 was nearer, but taken)
+rider E gets driver 6:  6 blocks =  90 s   (driver 1 was nearer, but taken)
+rider F gets driver 4:  7 blocks = 105 s   (driver 1 was nearer, but taken)
+total wait: 29 blocks = 435 s (72.5 s per rider)
+1,000 random moments, average wait by turn: A 46 s  B 52 s  C 62 s  D 73 s  E 88 s  F 116 s
+the last rider waits 2.5 times as long as the first; average 72.9 s per rider
+== step3_every_pairing
+the trap: nearest driver 8 blocks = 120 s; best of 2 pairings 4 blocks = 60 s
+the six riders of step 2: nearest driver 29 blocks, best of 720 pairings 23 blocks (90 s saved)
+1,000 random moments with 6 riders: the obvious rule misses the best pairing in 68.9% of them and beats it in 0
+average total: obvious 437 s, best 383 s (14.2% longer)
+ 2 riders:         2 pairings        0.0 ms
+ 3 riders:         6 pairings        0.0 ms
+ 4 riders:        24 pairings        0.0 ms
+ 5 riders:       120 pairings        0.0 ms
+ 6 riders:       720 pairings        0.3 ms
+ 7 riders:     5,040 pairings        1.9 ms
+ 8 riders:    40,320 pairings       16.1 ms
+ 9 riders:   362,880 pairings      153.9 ms
+10 riders: 3,628,800 pairings     1685.6 ms
+12 riders: 4.8e+08 pairings   estimated 3.7 minutes
+15 riders: 1.3e+12 pairings   estimated 7.0 days
+20 riders: 2.4e+18 pairings   estimated 35,835 years
+30 riders: 2.7e+32 pairings   estimated 3.9e+18 years
+== step4_auction
+the trap of step 3 (smallest raise 1/3 of a block):
+  bid  1: rider A sees bills  2.00  3.00 -> driver 1, raises its price by 1.33
+  bid  2: rider B sees bills  2.33  6.00 -> driver 1, raises its price by 4.00, bumps A
+  bid  3: rider A sees bills  7.33  3.00 -> driver 2, raises its price by 4.67
+  result: 4 blocks, the best of step 3
+the six riders (smallest raise 1/7 of a block):
+  bid  1: rider A sees bills  2.00  6.00  5.00  4.00  7.00  9.00 -> driver 1, raises its price by 2.14
+  bid  2: rider B sees bills  7.14  3.00  6.00  3.00  4.00 10.00 -> driver 2, raises its price by 0.14
+  bid  3: rider C sees bills 11.14  3.14  6.00  9.00  8.00  6.00 -> driver 2, raises its price by 3.00, bumps B
+  bid  4: rider D sees bills  8.14  5.14  3.00  6.00  5.00  7.00 -> driver 3, raises its price by 2.14
+  bid  5: rider E sees bills  5.14 14.14  8.14  9.00 12.00  6.00 -> driver 1, raises its price by 1.00, bumps A
+  bid  6: rider F sees bills  6.14 12.14  8.14  7.00 10.00 10.00 -> driver 1, raises its price by 1.00, bumps E
+  bid  7: rider B sees bills  9.14  6.14  8.14  3.00  4.00 10.00 -> driver 4, raises its price by 1.14
+  bid  8: rider A sees bills  6.14  9.14  7.14  5.14  7.00  9.00 -> driver 4, raises its price by 1.14, bumps B
+  bid  9: rider E sees bills  7.14 14.14  8.14 11.29 12.00  6.00 -> driver 6, raises its price by 1.29
+  bid 10: rider B sees bills  9.14  6.14  8.14  5.29  4.00 11.29 -> driver 5, raises its price by 1.43
+  result: A->4  B->5  C->2  D->3  E->6  F->1 = 23 blocks after 10 bids; brute force tried 720 pairings to find 23 blocks
+auction equals brute force on 600 of 600 random tables up to 7 x 7
+riders = drivers, whole city, average of 10 moments:
+   10 riders: nearest driver 258.3 s per rider, auction 213.6 s (17% shorter),     143 bids,    0.5 ms
+   20 riders: nearest driver 160.1 s per rider, auction 134.5 s (16% shorter),     772 bids,    2.8 ms
+   50 riders: nearest driver 136.4 s per rider, auction 100.7 s (26% shorter),   7,840 bids,   41.3 ms
+  100 riders: nearest driver 108.3 s per rider, auction  77.6 s (28% shorter),  52,171 bids,  454.3 ms
+== step5_evening
+1,212 riders ask during the evening; per minute: 5.0 at 18:00, 12.0 at 19:15, 5.0 at 21:00
+  asked 18:00-18:15: wait    44 s   free drivers  74.1   riders in line   0.2
+  asked 18:15-18:30: wait    58 s   free drivers  63.8   riders in line   0.1
+  asked 18:30-18:45: wait    75 s   free drivers  57.9   riders in line   0.1
+  asked 18:45-19:00: wait    81 s   free drivers  49.4   riders in line   0.0
+  asked 19:00-19:15: wait   282 s   free drivers  17.1   riders in line   2.5
+  asked 19:15-19:30: wait   819 s   free drivers   0.1   riders in line  51.5
+  asked 19:30-19:45: wait  1003 s   free drivers   0.1   riders in line  78.0
+  asked 19:45-20:00: wait   934 s   free drivers   0.1   riders in line  64.8
+  asked 20:00-20:15: wait   760 s   free drivers   0.1   riders in line  45.3
+  asked 20:15-20:30: wait   421 s   free drivers   2.2   riders in line  14.3
+  asked 20:30-20:45: wait    83 s   free drivers  29.7   riders in line   0.1
+  asked 20:45-21:00: wait    73 s   free drivers  51.5   riders in line   0.1
+drive to the pickup: 3.4 blocks for riders who asked before 18:30, 21.7 blocks for riders who asked 19:00-19:30
+the evening: average wait 427 s, 1 rider in 20 waits over 1138 s, the worst 1534 s
+== step6_batching
+the evening of step 5, average wait by the time riders asked:
+  18:00-18:15: obvious rule    44 s   batch   49 s
+  18:15-18:30: obvious rule    58 s   batch   60 s
+  18:30-18:45: obvious rule    75 s   batch   80 s
+  18:45-19:00: obvious rule    81 s   batch   87 s
+  19:00-19:15: obvious rule   282 s   batch  197 s
+  19:15-19:30: obvious rule   819 s   batch  248 s
+  19:30-19:45: obvious rule  1003 s   batch  157 s
+  19:45-20:00: obvious rule   934 s   batch   73 s
+  20:00-20:15: obvious rule   760 s   batch   68 s
+  20:15-20:30: obvious rule   421 s   batch   74 s
+  20:30-20:45: obvious rule    83 s   batch   86 s
+  20:45-21:00: obvious rule    73 s   batch   96 s
+  whole evening: obvious rule 427 s (worst 1534 s), 10 s batch 125 s (worst 1027 s): 3.4 times shorter
+window length, 8 evenings: wait = until matched + pickup drive
+  calm evening, obvious rule: 63 s
+    window   1 s:  62.9 =   0.0 +  62.9   1 in 20 waits over 156 s
+    window   5 s:  64.7 =   2.0 +  62.7   1 in 20 waits over 158 s
+    window  10 s:  67.0 =   4.5 +  62.5   1 in 20 waits over 160 s
+    window  20 s:  71.8 =   9.4 +  62.4   1 in 20 waits over 166 s
+    window  30 s:  76.3 =  14.6 +  61.7   1 in 20 waits over 167 s
+    window  60 s:  90.1 =  29.0 +  61.1   1 in 20 waits over 181 s
+    window 120 s: 119.9 =  59.3 +  60.6   1 in 20 waits over 224 s
+  rush evening, obvious rule: 442 s
+    window   1 s: 125.0 =  23.0 + 102.0   1 in 20 waits over 377 s
+    window   5 s: 123.7 =  23.4 + 100.3   1 in 20 waits over 359 s
+    window  10 s: 122.2 =  25.3 +  96.9   1 in 20 waits over 350 s
+    window  20 s: 123.3 =  29.0 +  94.4   1 in 20 waits over 333 s
+    window  30 s: 126.5 =  32.8 +  93.7   1 in 20 waits over 336 s
+    window  60 s: 134.7 =  48.2 +  86.5   1 in 20 waits over 327 s
+    window 120 s: 164.4 =  85.9 +  78.6   1 in 20 waits over 380 s
+how busy (1.0 = the rush evening): obvious rule / 10 s batch
+  busy 0.6:   63 s /   67 s   batch is better on 0 of 8 evenings
+  busy 0.7:   69 s /   73 s   batch is better on 1 of 8 evenings
+  busy 0.8:   90 s /   85 s   batch is better on 2 of 8 evenings
+  busy 0.9:  228 s /  110 s   batch is better on 8 of 8 evenings
+  busy 1.0:  442 s /  122 s   batch is better on 8 of 8 evenings
+  busy 1.1:  799 s /  148 s   batch is better on 8 of 8 evenings
+== step7_which_part
+the six riders: nearest driver 29 blocks, closest pair first 29 blocks, auction 23 blocks
+  20 frozen moments,  6 riders: nearest driver  15% longer than the auction, closest pair first   7% longer
+  20 frozen moments, 20 riders: nearest driver  23% longer than the auction, closest pair first  12% longer
+  20 frozen moments, 50 riders: nearest driver  30% longer than the auction, closest pair first  21% longer
+24 rush evenings: average wait, 1 in 20 waits over
+  obvious rule, in order of asking   426.2 s   1170 s
+  closest pair first, every second   124.9 s    380 s
+  closest pair first, every 10 s     124.4 s    365 s
+  auction, every second              124.7 s    379 s
+  auction, every 10 s                124.2 s    361 s
+  every 10 s, the auction beats closest pair first on 14 of 24 evenings
+why: the first evening has 729 batches of 10 s. 408 have one rider or one driver, where both rules must agree; 206 have two on the short side; 115 have more.
+  the auction found a shorter total than closest pair first in 9 batches, 32 blocks in the whole evening
+== step8_fair
+one busier evening, 10 s batch: average wait 158 s, but the rider at (23, 11) who asked at 19:10 waited 1815 s (30 min)
+  that rider was passed over in 151 batches; 275 riders asked later and were matched earlier
+  with waiting counted: that rider waits 590 s, the worst wait of the evening is 866 s, the average 162 s
+24 busier evenings: average wait, worst wait, riders over 10 minutes per evening
+  not counted             143 s    1539 s    29.4
+  240 s waited = 1 block  144 s    1190 s    27.3
+  120 s waited = 1 block  144 s    1045 s    23.6
+   60 s waited = 1 block  146 s     925 s    18.1
+   30 s waited = 1 block  151 s     884 s    14.2
+   15 s waited = 1 block  162 s     820 s    15.0
+    5 s waited = 1 block  202 s     942 s    56.5
+at 60 s: worst wait 40% shorter (shorter on 24 of 24 evenings), average wait 1.8% longer
+the rush evenings of step 7: average 124 -> 125 s, worst 1013 -> 864 s, over 10 minutes 12.3 -> 8.8 riders
+== exercise_river
+rider at (20, 20), driver 1 at (21, 20), driver 2 at (14, 20), bridges at y = 10 and y = 30
+  blocks on the map: 1 and 6; blocks by road: 21 and 6
+  blind dispatcher sends driver 1: 315 s; the real table sends driver 2: 90 s
+24 evenings at busy 0.7, 10 s batch: average wait, 1 in 20 over, 1 in 100 over
+  no river       blind  72.8 s  173 s  264 s   real table  72.8 s  173 s  264 s     0% shorter
+  three bridges  blind  79.7 s  209 s  318 s   real table  76.7 s  190 s  291 s     4% shorter
+  two bridges    blind  83.9 s  233 s  376 s   real table  79.1 s  199 s  312 s     6% shorter
+  one bridge     blind 106.3 s  353 s  673 s   real table  92.2 s  265 s  437 s    13% shorter
+two bridges: the real table is better on 24 of 24 evenings; pickup drive 79 -> 75 s
+one bridge: the real table is better on 24 of 24 evenings; pickup drive 102 -> 88 s
